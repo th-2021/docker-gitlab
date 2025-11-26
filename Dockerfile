@@ -1,6 +1,6 @@
-FROM ubuntu:noble-20251001
+FROM ubuntu:noble-20251013
 
-ARG VERSION=18.5.1
+ARG VERSION=18.6.0
 
 ENV GITLAB_VERSION=${VERSION} \
     RUBY_VERSION=3.2.9 \
@@ -8,9 +8,9 @@ ENV GITLAB_VERSION=${VERSION} \
     RUBYGEMS_VERSION=3.7.2 \
     GOLANG_VERSION=1.24.9 \
     GITLAB_SHELL_VERSION=14.45.3 \
-    GITLAB_PAGES_VERSION=18.5.1 \
-    GITALY_SERVER_VERSION=18.5.1 \
-    GITLAB_AGENT_VERSION=18.5.1 \
+    GITLAB_PAGES_VERSION=18.6.0 \
+    GITALY_SERVER_VERSION=18.6.0 \
+    GITLAB_AGENT_VERSION=18.6.0 \
     GITLAB_USER="git" \
     GITLAB_HOME="/home/git" \
     GITLAB_LOG_DIR="/var/log/gitlab" \
@@ -50,7 +50,7 @@ RUN set -ex && \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
       sudo supervisor logrotate locales curl \
-      nginx openssh-server postgresql-contrib redis-tools \
+      nginx openssh-server redis-tools \
       postgresql-client-13 postgresql-client-14 postgresql-client-15 postgresql-client-16 postgresql-client-17 \
       python3 python3-docutils nodejs yarn gettext-base graphicsmagick \
       libpq5 zlib1g libyaml-dev libssl-dev libgdbm-dev libre2-dev \
