@@ -34,7 +34,6 @@ queue_requests false
 # Bind the server to "url". "tcp://", "unix://" and "ssl://" are the only
 # accepted protocols.
 bind 'unix:///home/git/gitlab/tmp/sockets/gitlab.socket'
-bind 'tcp://127.0.0.1:8080'
 
 workers {{PUMA_WORKERS}}
 
