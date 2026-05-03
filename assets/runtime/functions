@@ -293,9 +293,19 @@ gitlab_finalize_redis_parameters() {
   fi
 }
 
+exists () {
+  type "$1" >/dev/null 2>/dev/null
+}
+
 gitlab_check_redis_connection() {
   timeout=60
-  while ! redis-cli -h ${REDIS_HOST} -p ${REDIS_PORT} -n ${REDIS_DB_NUMBER} ping >/dev/null 2>&1
+  if exists valkey-cli; then
+    REDIS_CLI=valkey-cli
+  else
+    REDIS_CLI=redis-cli
+  fi
+
+  while ! ${REDIS_CLI} -h ${REDIS_HOST} -p ${REDIS_PORT} -n ${REDIS_DB_NUMBER} ping >/dev/null 2>&1
   do
     timeout=$(expr $timeout - 1)
     if [[ $timeout -eq 0 ]]; then
@@ -375,6 +385,7 @@ gitlab_configure_gitlab_kas() {
     GITLAB_KAS_PROXY
 
   printf "Configuring gitlab-agent::KAS (enabled: %s)\n" "${GITLAB_AGENT_BUILTIN_KAS_ENABLED}"
+  
   if [[ ${GITLAB_AGENT_BUILTIN_KAS_ENABLED} == true ]]; then
     if [[ "${GITLAB_HTTPS}" == true ]]; then
       GITLAB_SCHEME=https
