@@ -1,4 +1,4 @@
-# sameersbn/gitlab:18.11.2
+# sameersbn/gitlab:18.11.3
 
 [![CircleCI](https://circleci.com/gh/sameersbn/docker-gitlab/tree/master.svg?style=svg)](https://circleci.com/gh/sameersbn/docker-gitlab/tree/master)
 
@@ -23,6 +23,7 @@
         - [External Redis Server](#external-redis-server)
         - [Linking to Redis Container](#linking-to-redis-container)
     - [Mail](#mail)
+        - [Microsoft Graph Mailer](#microsoft-graph-mailer)
         - [Reply by email](#reply-by-email)
     - [SSL](#ssl)
         - [Generation of a Self Signed Certificate](#generation-of-a-self-signed-certificate)
@@ -129,7 +130,7 @@ Your docker host needs to have 1GB or more of available RAM to run GitLab. Pleas
 Automated builds of the image are available on [Dockerhub](https://hub.docker.com/r/sameersbn/gitlab) and is the recommended method of installation.
 
 ```bash
-docker pull sameersbn/gitlab:18.11.2
+docker pull sameersbn/gitlab:18.11.3
 ```
 
 You can also pull the `latest` tag which is built from the repository *HEAD*
@@ -211,7 +212,7 @@ docker run --name gitlab -d \
     --env 'GITLAB_SECRETS_ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY=["long-and-random-alpha-numeric-string"]' \
     --env 'GITLAB_SECRETS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT=long-and-random-alpha-numeric-string' \
     --volume /srv/docker/gitlab/gitlab:/home/git/data \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 *Please refer to [Available Configuration Parameters](#available-configuration-parameters) to understand `GITLAB_PORT` and other configuration options*
@@ -246,7 +247,7 @@ Volumes can be mounted in docker by specifying the `-v` option in the docker run
 ```bash
 docker run --name gitlab -d \
     --volume /srv/docker/gitlab/gitlab:/home/git/data \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 ### Database
@@ -311,7 +312,7 @@ docker run --name gitlab -d \
     --env 'DB_NAME=gitlabhq_production' \
     --env 'DB_USER=gitlab' --env 'DB_PASS=password' \
     --volume /srv/docker/gitlab/gitlab:/home/git/data \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 ##### Linking to PostgreSQL Container
@@ -355,7 +356,7 @@ We are now ready to start the GitLab application.
 ```bash
 docker run --name gitlab -d --link gitlab-postgresql:postgresql \
     --volume /srv/docker/gitlab/gitlab:/home/git/data \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 Here the image will also automatically fetch the `DB_NAME`, `DB_USER` and `DB_PASS` variables from the postgresql container as they are specified in the `docker run` command for the postgresql container. This is made possible using the magic of docker links and works with the following images:
@@ -393,7 +394,7 @@ The image can be configured to use an external redis server. The configuration s
 ```bash
 docker run --name gitlab -it --rm \
     --env 'REDIS_HOST=192.168.1.100' --env 'REDIS_PORT=6379' \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 #### Linking to Redis Container
@@ -420,7 +421,7 @@ We are now ready to start the GitLab application.
 
 ```bash
 docker run --name gitlab -d --link gitlab-redis:redisio \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 #### Mail
@@ -433,10 +434,30 @@ If you are using Gmail then all you need to do is:
 docker run --name gitlab -d \
     --env 'SMTP_USER=USER@gmail.com' --env 'SMTP_PASS=PASSWORD' \
     --volume /srv/docker/gitlab/gitlab:/home/git/data \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 Please refer the [Available Configuration Parameters](#available-configuration-parameters) section for the list of SMTP parameters that can be specified.
+
+##### Microsoft Graph Mailer
+
+As Microsoft is retiring basic authentication for SMTP AUTH on Exchange Online, mail delivery via SMTP using a Microsoft 365 mailbox is no longer viable for many tenants. The image supports GitLab's native Microsoft Graph Mailer, which sends emails via the Microsoft Graph API using OAuth 2.0 client credentials.
+
+To enable it, register an application in Azure AD, grant it the `Mail.Send` **Application** permission (not Delegated), and have an administrator consent to it. Then start the container with:
+
+```bash
+docker run --name gitlab -d \
+    --env 'MICROSOFT_GRAPH_MAILER_ENABLED=true' \
+    --env 'MICROSOFT_GRAPH_MAILER_USER_ID=00000000-0000-0000-0000-000000000000' \
+    --env 'MICROSOFT_GRAPH_MAILER_TENANT=contoso.onmicrosoft.com' \
+    --env 'MICROSOFT_GRAPH_MAILER_CLIENT_ID=11111111-1111-1111-1111-111111111111' \
+    --env 'MICROSOFT_GRAPH_MAILER_CLIENT_SECRET=YOUR_CLIENT_SECRET' \
+    --env 'GITLAB_EMAIL=sender@contoso.com' \
+    --volume /srv/docker/gitlab/gitlab:/home/git/data \
+    sameersbn/gitlab:18.11.0
+```
+
+`MICROSOFT_GRAPH_MAILER_USER_ID` is the Object ID of the Microsoft 365 user whose mailbox will be used, and `GITLAB_EMAIL` must be that user's primary email address. `SMTP_ENABLED` should stay at its default (`false`) when Graph Mailer is used. Please refer the [Available Configuration Parameters](#available-configuration-parameters) section for the list of Microsoft Graph Mailer parameters that can be specified.
 
 ##### Reply by email
 
@@ -453,7 +474,7 @@ docker run --name gitlab -d \
     --env 'IMAP_USER=USER@gmail.com' --env 'IMAP_PASS=PASSWORD' \
     --env 'GITLAB_INCOMING_EMAIL_ADDRESS=USER+%{key}@gmail.com' \
     --volume /srv/docker/gitlab/gitlab:/home/git/data \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 Please refer the [Available Configuration Parameters](#available-configuration-parameters) section for the list of IMAP parameters that can be specified.
@@ -537,7 +558,7 @@ docker run --name gitlab -d \
     --env 'GITLAB_SSH_PORT=10022' --env 'GITLAB_PORT=10443' \
     --env 'GITLAB_HTTPS=true' --env 'SSL_SELF_SIGNED=true' \
     --volume /srv/docker/gitlab/gitlab:/home/git/data \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 In this configuration, any requests made over the plain http protocol will automatically be redirected to use the https protocol. However, this is not optimal when using a load balancer.
@@ -553,7 +574,7 @@ docker run --name gitlab -d \
  --env 'GITLAB_HTTPS=true' --env 'SSL_SELF_SIGNED=true' \
  --env 'NGINX_HSTS_MAXAGE=2592000' \
  --volume /srv/docker/gitlab/gitlab:/home/git/data \
- sameersbn/gitlab:18.11.2
+ sameersbn/gitlab:18.11.3
 ```
 
 If you want to completely disable HSTS set `NGINX_HSTS_ENABLED` to `false`.
@@ -576,7 +597,7 @@ docker run --name gitlab -d \
     --env 'GITLAB_SSH_PORT=10022' --env 'GITLAB_PORT=443' \
     --env 'GITLAB_HTTPS=true' --env 'SSL_SELF_SIGNED=true' \
     --volume /srv/docker/gitlab/gitlab:/home/git/data \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 Again, drop the `--env 'SSL_SELF_SIGNED=true'` option if you are using CA certified SSL certificates.
@@ -624,7 +645,7 @@ Let's assume we want to deploy our application to '/git'. GitLab needs to know t
 docker run --name gitlab -it --rm \
     --env 'GITLAB_RELATIVE_URL_ROOT=/git' \
     --volume /srv/docker/gitlab/gitlab:/home/git/data \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 GitLab will now be accessible at the `/git` path, e.g. `http://www.example.com/git`.
@@ -851,14 +872,14 @@ Also the container processes seem to be executed as the host's user/group `1000`
 ```bash
 docker run --name gitlab -it --rm [options] \
     --env "USERMAP_UID=$(id -u git)" --env "USERMAP_GID=$(id -g git)" \
-    sameersbn/gitlab:18.11.2
+    sameersbn/gitlab:18.11.3
 ```
 
 When changing this mapping, all files and directories in the mounted data volume `/home/git/data` have to be re-owned by the new ids. This can be achieved automatically using the following command:
 
 ```bash
 docker run --name gitlab -d [OPTIONS] \
-    sameersbn/gitlab:18.11.2 app:sanitize
+    sameersbn/gitlab:18.11.3 app:sanitize
 ```
 
 #### Piwik
@@ -2140,6 +2161,34 @@ Specify the `ca_path` parameter for SMTP email configuration. Defaults to `/home
 
 Specify the `ca_file` parameter for SMTP email configuration. Defaults to `/home/git/data/certs/ca.crt`.
 
+##### `MICROSOFT_GRAPH_MAILER_ENABLED`
+
+Enable mail delivery via Microsoft Graph API. Defaults to `false`. When enabled, emails are sent using OAuth 2.0 client credentials via the Microsoft Graph `sendMail` endpoint instead of SMTP. Requires an Azure App Registration with the `Mail.Send` Application permission granted and admin-consented. When both `SMTP_ENABLED` and `MICROSOFT_GRAPH_MAILER_ENABLED` are `false`, GitLab mail delivery is disabled.
+
+##### `MICROSOFT_GRAPH_MAILER_USER_ID`
+
+The Object ID (GUID) of the Microsoft 365 user to send mail as. This must match the user whose mailbox the emails are sent from. `GITLAB_EMAIL` should match the primary email address of this user.
+
+##### `MICROSOFT_GRAPH_MAILER_TENANT`
+
+The Azure AD tenant ID (GUID) or tenant domain (e.g. `contoso.onmicrosoft.com`).
+
+##### `MICROSOFT_GRAPH_MAILER_CLIENT_ID`
+
+The Application (client) ID from the Azure App Registration.
+
+##### `MICROSOFT_GRAPH_MAILER_CLIENT_SECRET`
+
+The client secret value from the Azure App Registration.
+
+##### `MICROSOFT_GRAPH_MAILER_AZURE_AD_ENDPOINT`
+
+Azure AD authority endpoint used to obtain an access token. Defaults to `https://login.microsoftonline.com`. Override for sovereign clouds (e.g. `https://login.microsoftonline.us` for Azure Government).
+
+##### `MICROSOFT_GRAPH_MAILER_GRAPH_ENDPOINT`
+
+Microsoft Graph API endpoint. Defaults to `https://graph.microsoft.com`. Override for sovereign clouds (e.g. `https://graph.microsoft.us` for Azure Government).
+
 ##### `IMAP_ENABLED`
 
 Enable mail delivery via IMAP. Defaults to `true` if `IMAP_USER` is defined, else defaults to `false`.
@@ -2749,7 +2798,7 @@ Execute the rake task to create a backup.
 
 ```bash
 docker run --name gitlab -it --rm [OPTIONS] \
-    sameersbn/gitlab:18.11.2 app:rake gitlab:backup:create
+    sameersbn/gitlab:18.11.3 app:rake gitlab:backup:create
 ```
 
 A backup will be created in the backups folder of the [Data Store](#data-store). You can change the location of the backups using the `GITLAB_BACKUP_DIR` configuration parameter.
@@ -2784,14 +2833,14 @@ you need to prepare the database:
 
 ```bash
 docker run --name gitlab -it --rm [OPTIONS] \
-    sameersbn/gitlab:18.11.2 app:rake db:setup
+    sameersbn/gitlab:18.11.3 app:rake db:setup
 ```
 
 Execute the rake task to restore a backup. Make sure you run the container in interactive mode `-it`.
 
 ```bash
 docker run --name gitlab -it --rm [OPTIONS] \
-    sameersbn/gitlab:18.11.2 app:rake gitlab:backup:restore
+    sameersbn/gitlab:18.11.3 app:rake gitlab:backup:restore
 ```
 
 The list of all available backups will be displayed in reverse chronological order. Select the backup you want to restore and continue.
@@ -2800,7 +2849,7 @@ To avoid user interaction in the restore operation, specify the timestamp, date 
 
 ```bash
 docker run --name gitlab -it --rm [OPTIONS] \
-    sameersbn/gitlab:18.11.2 app:rake gitlab:backup:restore BACKUP=1515629493_2020_12_06_13.0.6
+    sameersbn/gitlab:18.11.3 app:rake gitlab:backup:restore BACKUP=1515629493_2020_12_06_13.0.6
 ```
 
 When using `docker-compose` you may use the following command to execute the restore.
@@ -2849,7 +2898,7 @@ The `app:rake` command allows you to run gitlab rake tasks. To run a rake task s
 
 ```bash
 docker run --name gitlab -it --rm [OPTIONS] \
-    sameersbn/gitlab:18.11.2 app:rake gitlab:env:info
+    sameersbn/gitlab:18.11.3 app:rake gitlab:env:info
 ```
 
 You can also use `docker exec` to run rake tasks on running gitlab instance. For example,
@@ -2862,7 +2911,7 @@ Similarly, to import bare repositories into GitLab project instance
 
 ```bash
 docker run --name gitlab -it --rm [OPTIONS] \
-    sameersbn/gitlab:18.11.2 app:rake gitlab:import:repos
+    sameersbn/gitlab:18.11.3 app:rake gitlab:import:repos
 ```
 
 Or
@@ -2893,7 +2942,7 @@ Copy all the **bare** git repositories to the `repositories/` directory of the [
 
 ```bash
 docker run --name gitlab -it --rm [OPTIONS] \
-    sameersbn/gitlab:18.11.2 app:rake gitlab:import:repos
+    sameersbn/gitlab:18.11.3 app:rake gitlab:import:repos
 ```
 
 Watch the logs and your repositories should be available into your new gitlab container.
@@ -2924,12 +2973,12 @@ To upgrade to newer gitlab releases, simply follow this 4 step upgrade procedure
 
 > **Note**
 >
-> Upgrading to `sameersbn/gitlab:18.11.2` from `sameersbn/gitlab:7.x.x` can cause issues. It is therefore required that you first upgrade to `sameersbn/gitlab:8.0.5-1` before upgrading to `sameersbn/gitlab:8.1.0` or higher.
+> Upgrading to `sameersbn/gitlab:18.11.3` from `sameersbn/gitlab:7.x.x` can cause issues. It is therefore required that you first upgrade to `sameersbn/gitlab:8.0.5-1` before upgrading to `sameersbn/gitlab:8.1.0` or higher.
 
 - **Step 1**: Update the docker image.
 
 ```bash
-docker pull sameersbn/gitlab:18.11.2
+docker pull sameersbn/gitlab:18.11.3
 ```
 
 - **Step 2**: Stop and remove the currently running image
@@ -2959,7 +3008,7 @@ Replace `x.x.x` with the version you are upgrading from. For example, if you are
 > **Note**: Since Gitlab 17.8 you need to provide `GITLAB_SECRETS_ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`,`GITLAB_SECRETS_ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY` and `GITLAB_SECRETS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT`. If not provided, these keys will be generated by gitlab. The image can be started without setting these parameters, **but you will lose the settings when you shutting down the container without taking a backup of `secrets.yml` and settings stored securely (such as the Dependency Proxy) will be unusable and unrecoverable.**
 
 ```bash
-docker run --name gitlab -d [OPTIONS] sameersbn/gitlab:18.11.2
+docker run --name gitlab -d [OPTIONS] sameersbn/gitlab:18.11.3
 ```
 
 ### Shell Access
@@ -2995,7 +3044,7 @@ You can also set your `docker-compose.yml` [healthcheck](https://docs.docker.com
 ```yml
 services:
   gitlab:
-    image: sameersbn/gitlab:18.11.2
+    image: sameersbn/gitlab:18.11.3
     healthcheck:
       test: ["CMD", "/usr/local/sbin/healthcheck"]
       interval: 1m
