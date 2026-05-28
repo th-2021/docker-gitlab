@@ -206,7 +206,12 @@ fi
 
 exec_as_git bundle config set --local deployment 'true'
 exec_as_git bundle config set --local without 'development test mysql aws'
-exec_as_git bundle install -j"$(nproc)"
+NCPUS=`nproc`
+if (( NCPUS > 8 )); then
+       NCPUS=8
+fi       
+
+exec_as_git bundle install -j"${NCPUS}"
 
 # make sure everything in ${GITLAB_HOME} is owned by ${GITLAB_USER} user
 chown -R ${GITLAB_USER}: ${GITLAB_HOME}
