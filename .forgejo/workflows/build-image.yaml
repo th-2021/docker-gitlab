@@ -1,7 +1,7 @@
 name: Build docker-gitlab image 
 on: [push]
 jobs:
-  docs:
+  build-image:
     runs-on: docker
     steps:
       - name: Code herunterladen
