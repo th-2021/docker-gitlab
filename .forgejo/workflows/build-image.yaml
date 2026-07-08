@@ -10,14 +10,14 @@ jobs:
           ref: 'support-builtin-kas'
       - name: Docker create builder
         run: |
-          docker buildx create --name imagebuilder --driver=remote tcp://staging-buildkitd-non-tls:1234 --bootstrap --use
+          docker buildx create --name imagebuilder --driver=remote tcp://staging-buildkitd-non-tls.buildkitd:1234 --bootstrap --use
       - name: Docker buildx
         run: |
-          docker buildx build --no-cache --tag $REGISTRY:$TAG --push \
+          docker buildx build --no-cache --tag  tom-ml351.31fakduva17kuk73.myfritz.net/thiller/docker-gitlab:19.1.1-test --push \
           --provenance=false \
           --build-arg BUILD_DATE="2026-07-08 15:34:32+00:00" \
           --build-arg VCS_REF=$(git rev-parse --short HEAD) \
           --build-arg BUILDKIT_INLINE_CACHE=1 \
-          --cache-from type=registry,ref=$REGISTRY:buildcache \
-          --cache-to type=registry,ref=$REGISTRY:buildcache,mode=max,image-manifest=true  -f Dockerfile.test .
+          --cache-from type=registry,ref=tom-ml351.31fakduva17kuk73.myfritz.net/thiller/docker-gitlab:buildcache \
+          --cache-to type=registry,ref=tom-ml351.31fakduva17kuk73.myfritz.net/thiller/docker-gitlab:buildcache,mode=max,image-manifest=true  -f Dockerfile.test .
 
