@@ -19,5 +19,5 @@ jobs:
           --build-arg VCS_REF=$(git rev-parse --short HEAD) \
           --build-arg BUILDKIT_INLINE_CACHE=1 \
           --cache-from type=registry,ref=tom-ml351.31fakduva17kuk73.myfritz.net/thiller/docker-gitlab:buildcache \
-          --cache-to type=registry,ref=tom-ml351.31fakduva17kuk73.myfritz.net/thiller/docker-gitlab:buildcache,mode=max,image-manifest=true  -f docker-gitlab/Dockerfile .
+          --cache-to type=registry,ref=tom-ml351.31fakduva17kuk73.myfritz.net/thiller/docker-gitlab:buildcache,mode=max,image-manifest=true  -f Dockerfile .
 
