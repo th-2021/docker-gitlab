@@ -207,7 +207,9 @@ fi
 exec_as_git bundle config set --local deployment 'true'
 exec_as_git bundle config set --local without 'development test mysql aws'
 
-exec_as_git bundle install -j"$(nproc)"
+echo "NPROC: $((awk '{print int($1/$2)}' /sys/fs/cgroup/cpu.max))"
+
+exec_as_git bundle install -j28
 
 # make sure everything in ${GITLAB_HOME} is owned by ${GITLAB_USER} user
 chown -R ${GITLAB_USER}: ${GITLAB_HOME}
