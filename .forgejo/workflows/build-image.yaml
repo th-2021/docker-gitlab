@@ -8,6 +8,12 @@ jobs:
         uses: https://code.forgejo.org/senyai/checkout@main
         with:
           ref: 'support-builtin-kas'
+      - name: Docker login
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
       - name: Docker create builder
         run: |
           docker buildx create --name imagebuilder --driver=remote tcp://staging-buildkitd-non-tls.buildkitd:1234 --bootstrap --use
