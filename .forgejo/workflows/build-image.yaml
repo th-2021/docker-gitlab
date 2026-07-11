@@ -16,7 +16,7 @@ jobs:
           password: ${{ secrets.REGISTRY_TOKEN }}
       - name: Docker create builder
         run: |
-          docker buildx create --name imagebuilder --driver=remote tcp://staging-buildkitd-non-tls.buildkitd:1234 --bootstrap --use
+          docker buildx create --name imagebuilder --driver=remote tcp://${{ vars.BUILD_HOST }}:1234 --bootstrap --use
       - name: Docker buildx
         run: |
           docker buildx build --no-cache --tag  ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_USERNAME }}/docker-gitlab:`cat VERSION` --push \
