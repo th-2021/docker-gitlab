@@ -3,6 +3,22 @@
 This file only reflects the changes that are made in this image. Please refer to the upstream GitLab [CHANGELOG](https://
 gitlab.com/gitlab-org/gitlab-foss/blob/master/CHANGELOG.md) for the list of changes in GitLab.
 
+## 19.3.1
+
+- gitlab: upgrade CE to v19.3.1
+- gitaly: upgrade to v19.3.1
+- gitlab-pages: upgrade to v19.3.1
+
+## 19.3.0
+
+- gitlab: upgrade CE to v19.3.0
+- gitaly: upgrade to v19.3.0
+- gitlab-pages: upgrade to v19.3.0
+- golang: upgrade to v1.26.7
+- rubygems: upgrade to v4.0.19
+- ubuntu: upgrade to 20260810
+- postgresql: add PG_PARAM_MAX_LOCKS_PER_TRANSACTION
+
 ## 19.2.4
 
 - gitlab: upgrade CE to v19.2.4
