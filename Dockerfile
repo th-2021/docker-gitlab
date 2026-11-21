@@ -1,4 +1,4 @@
-FROM ubuntu:noble-20261110
+FROM ubuntu:noble-20261110.1
 
 ARG VERSION=19.6.1
 
